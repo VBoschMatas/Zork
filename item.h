@@ -13,7 +13,7 @@ enum ItemType
 	COMMON,
 	WEAPON,
 	ARMOUR,
-	STATIC
+	CONSUMABLE
 };
 
 class Item : public Entity
