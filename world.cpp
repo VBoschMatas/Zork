@@ -17,26 +17,66 @@ World::World()
 	Room* forest = new Room("Forest", "You are surrounded by tall trees. It feels like a huge forest someone could get lost easily.");
 	Room* house = new Room("House", "You are inside a beautiful but small white house.");
 	Room* basement = new Room("Basement", "The basement features old furniture and dim light.");
+		// New rooms
 	Room* forest2 = new Room("Deep forest", "Your are deep inside the forest");
+	Room* backyard = new Room("Backyard", "You are at the backyard. There is an old well, you might get down using something.");
+	Room* park = new Room("Park", "A small but cozy park. Looks like someone has been here recently.");
+	Room* shed = new Room("Shed", "You are inside a small shed filled with tools.");
+	Room* cave1 = new Room("Cave I", "You are sorrounded by nothing but stones. Dim light reaches from the well.");
+	Room* cave2 = new Room("Cave II", "You are sorrounded by nothing but stones.");
+	Room* cave3 = new Room("Cave III", "You can hear some starnge noises ahead.");
+	Room* cave4 = new Room("Cave IV", "You are in an open area inside the cave.");
+
 
 	Exit* ex1 = new Exit("west", "east", "Little path", house, forest);
 	Exit* ex2 = new Exit("down", "up", "Stairs", house, basement);
+		//New exits
 	Exit* ex3 = new Exit("up", "down", "Overgown path", forest, forest2);
+	Exit* ex4 = new Exit("west", "east", "Back door", house, backyard);
+	Exit* ex5 = new Exit("up", "down", "Paved road", backyard, park);
+	Exit* ex6 = new Exit("east", "west", "Dirt path", forest2, shed);
+	Exit* ex7 = new Exit("east", "west", "Dirt path", shed, park);
+	Exit* ex8 = new Exit("up", "down", "Well", cave1, backyard);
+	Exit* ex9 = new Exit("east", "west", "Underground corridor", cave1, cave2);
+	Exit* ex10 = new Exit("down", "up", "Undergound corridor", cave2, cave3);
+	Exit* ex11 = new Exit("west", "east", "Wide corridor", cave3, cave4);
+	Exit* ex12 = new Exit("up", "down", "Steep slope", cave4, cave1, true);
+
 	ex2->locked = true;
+	ex8->locked = true;
+	ex3->blocked = true;
+	ex3->resistance = 1;
 
 	entities.push_back(forest);
 	entities.push_back(house);
 	entities.push_back(basement);
 	entities.push_back(forest2);
+	entities.push_back(shed);
+	entities.push_back(park);
+	entities.push_back(backyard);
+	entities.push_back(cave1);
+	entities.push_back(cave2);
+	entities.push_back(cave3);
+	entities.push_back(cave4);
 
 	entities.push_back(ex1);
 	entities.push_back(ex2);
 	entities.push_back(ex3);
+	entities.push_back(ex4);
+	entities.push_back(ex5);
+	entities.push_back(ex6);
+	entities.push_back(ex7);
+	entities.push_back(ex8);
+	entities.push_back(ex9);
+	entities.push_back(ex10);
+	entities.push_back(ex11);
+	entities.push_back(ex12);
 
 	// Creatures ----
 	Creature* butler = new Creature("Butler", "It's James, the house Butler.", house);
 	butler->hit_points = 10;
-
+		//New creatures
+	Creature* troll = new Creature("Troll", "A big and fearsome troll. It's holding something.", cave4);
 	entities.push_back(butler);
 
 	// Items -----
@@ -55,10 +95,13 @@ World::World()
 	shield->min_value = 1;
 	shield->max_value = 3;
 	butler->AutoEquip();
-
+		
+		//New items
 	Item* bag = new Item("Bag", "An old and scratched bag.", forest2);
 	Item* rope = new Item("Rope", "A sturdy rope", bag);
-	
+	Item* vines = new Item("Vines", "Overgown vines that block the path.", ex3);
+	ex8->key = rope;
+
 	entities.push_back(mailbox);
 	entities.push_back(sword);
 	entities.push_back(shield);
@@ -197,6 +240,10 @@ bool World::ParseCommand(vector<string>& args)
 			else if(Same(args[0], "loot") || Same(args[0], "lt"))
 			{
 				player->Loot(args);
+			}
+			else if (Same(args[0], "break") || Same(args[0], "bk"))
+			{
+				player->Break(args);
 			}
 			else
 				ret = false;

@@ -60,6 +60,12 @@ bool Player::Go(const vector<string>& args)
 		return false;
 	}
 
+	if (exit->blocked)
+	{
+		cout << "\nThat exit is blocked by " << exit->Find(ITEM)->name << ". You might need something to break through.\n";
+		return false;
+	}
+
 	cout << "\nYou take direction " << exit->GetNameFrom((Room*) parent) << "...\n";
 	ChangeParentTo(exit->GetDestinationFrom((Room*) parent));
 	parent->Look();
@@ -268,7 +274,7 @@ bool Player::Attack(const vector<string>& args)
 
 	if(target == NULL)
 	{
-		cout << "\n" << args[1] << " is not here.";
+		cout << "\n" << args[1] << " is not here.\n";
 		return false;
 	}
 
@@ -379,19 +385,53 @@ bool Player::UnLock(const vector<string>& args)
 
 	if(item == NULL)
 	{
-		cout << "\nKey '" << args[3] << "' not found in your inventory.\n";
+		cout << "\nItem '" << args[3] << "' not found in your inventory.\n";
 		return false;
 	}
 
 	if(exit->key != item)
 	{
-		cout << "\nKey '" << item->name << "' is not the key for " << exit->GetNameFrom((Room*)parent) << ".\n";
+		cout << "\nItem '" << item->name << "' is not the key for " << exit->GetNameFrom((Room*)parent) << ".\n";
 		return false;
 	}
 
 	cout << "\nYou unlock " << exit->GetNameFrom((Room*)parent) << "...\n";
 
 	exit->locked = false;
+
+	return true;
+}
+
+// The player will try to break what blocks the path
+bool Player::Break(const vector<string>& args)
+{
+	if (!IsAlive())
+		return false;
+
+	Exit* exit = GetRoom()->GetExit(args[1]);
+
+	if (exit == NULL)
+	{
+		cout << "\nThere is no exit at '" << args[1] << "'.\n";
+		return false;
+	}
+
+	if (exit->blocked == false)
+	{
+		cout << "\nThat exit is not blocked.\n";
+		return false;
+	}
+
+	//If the resistance of the blocking item is higher than the playe's attack it will fail
+	if (exit->resistance > (((weapon) ? weapon->min_value : min_damage)) + min_damage)
+	{
+		cout << "\n You do not have enough strength to break through.\n";
+		return false;
+	}
+
+	cout << "\nYou cleared " << exit->GetNameFrom((Room*)parent) << " from " << exit->Find(ITEM)->name << "...\n";
+
+	exit->blocked = false;
 
 	return true;
 }

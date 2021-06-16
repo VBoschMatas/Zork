@@ -22,7 +22,9 @@ public:
 public :
 	bool one_way;
 	bool closed;
+	bool blocked; //If the exit is blocked by an obstacle
 	bool locked;
+	int resistance; //Resistance of the obstacle
 	string opposite_name;
 	Room* destination;
 	Entity* key;
