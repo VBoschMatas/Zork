@@ -13,7 +13,8 @@ enum EntityType
 	EXIT,
 	ITEM,
 	CREATURE,
-	PLAYER
+	PLAYER,
+	QUEST
 };
 
 class Entity

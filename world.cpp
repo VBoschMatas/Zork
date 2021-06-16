@@ -20,7 +20,7 @@ World::World()
 		// New rooms
 	Room* forest2 = new Room("Deep forest", "Your are deep inside the forest");
 	Room* backyard = new Room("Backyard", "You are at the backyard. There is an old well, you might get down using something.");
-	Room* park = new Room("Park", "A small but cozy park. Looks like someone has been here recently.");
+	Room* park = new Room("Park", "A runned down park filled with unfriendly inhabitants.");
 	Room* shed = new Room("Shed", "You are inside a small shed filled with tools.");
 	Room* cave1 = new Room("Cave I", "You are sorrounded by nothing but stones. Dim light reaches from the well.");
 	Room* cave2 = new Room("Cave II", "You are sorrounded by nothing but stones.");
@@ -76,8 +76,30 @@ World::World()
 	Creature* butler = new Creature("Butler", "It's James, the house Butler.", house);
 	butler->hit_points = 10;
 		//New creatures
+	Creature* dispatcher = new Creature("Dispatcher", "The one that commissioned you.", forest);
+	dispatcher->hit_points = 100;
+	dispatcher->min_damage = 100;
+	dispatcher->max_damage = 100;
+	dispatcher->min_protection = 100;
+	dispatcher->max_protection = 100;
+	Creature* rat1 = new Creature("Rat", "A small rat", backyard);
+	rat1->hit_points = 5;
+	Creature* rat2 = new Creature("Rat", "A small rat", forest2);
+	rat2->hit_points = 5;
+	Creature* rat3 = new Creature("Rat", "A small rat", cave2);
+	rat3->hit_points = 5;
 	Creature* troll = new Creature("Troll", "A big and fearsome troll. It's holding something.", cave4);
+	troll->hit_points = 50;
+	troll->min_protection = 0;
+	troll->max_protection = 3;
+	Creature* goblin = new Creature("Goblin", "A small goblin that left the pack.", park);
+	goblin->hit_points = 10;
+	goblin->min_damage = 1;
+	goblin->max_damage = 3;
+
 	entities.push_back(butler);
+	entities.push_back(troll);
+	entities.push_back(goblin);
 
 	// Items -----
 	Item* mailbox = new Item("Mailbox", "Looks like it might contain something.", house);
