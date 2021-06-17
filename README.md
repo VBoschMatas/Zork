@@ -12,7 +12,7 @@ This version of Zork has 11 rooms, various creatures and items, consumables, new
 
 The quests consist about some simple messages  depending if they are completed or not, some name of an item the quest deliverer wants and a reward. If you give the NPC the right object this last one will disappear from your inventory and a reward will be placed there instead. There is also an option to make a quest of type "main", and once it is completed the game ends with a victory.
 
-There is also consumable objects that can be used and will heal a certain amount of life. This items are lost once consumed.
+There are also consumable objects that can be used and will heal a certain amount of life. This items are lost once consumed.
 
 ## How to play
 Through keyboard input type the actions the main character has to perform in order to navigate and complete the quests.
