@@ -2,6 +2,8 @@
 
 ## Author: Vicenç Bosch Matas
 
+## Link to repository: https://github.com/VBoschMatas/Zork
+
 Small game created from a base code obtained at https://github.com/d0n3val/zork.
 
 Main, globals and general object structure are similar to the base code. 
