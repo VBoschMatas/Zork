@@ -9,15 +9,15 @@ class Item;
 class Quest : public Entity
 {
 public:
-	Quest(const char* name, const char* description, Item* parent, const bool main = false);
+	Quest(const char* name, const char* description, Entity* parent, const bool main = false);
 	~Quest();
 
-	void Look() const;
-	int GetValue() const;
 
 public:
-	Item* objective;
+	const char* objective; // It may be different items with same name
 	Item* reward;
 	const char* conversation;
 	const char* completion;
+	bool is_completed;
 };
+#endif

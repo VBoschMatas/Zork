@@ -1,5 +1,5 @@
-#ifndef __World__
-#define __World__
+#ifndef __Game__
+#define __Game__
 
 #include <string>
 #include <list>
@@ -11,13 +11,14 @@ using namespace std;
 
 class Entity;
 class Player;
+class Quest;
 
-class World
+class Game
 {
 public :
 
-	World();
-	~World();
+	Game();
+	~Game();
 
 	bool Tick(vector<string>& args);
 	bool ParseCommand(vector<string>& args);

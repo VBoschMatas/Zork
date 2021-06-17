@@ -1,6 +1,6 @@
 #include <iostream>
 #include "globals.h"
-#include "exit.h"
+#include "connection.h"
 #include "item.h"
 #include "creature.h"
 #include "room.h"
@@ -28,7 +28,7 @@ void Room::Look() const
 	{
 		if((*it)->type == EXIT)
 		{
-			Exit* ex = (Exit*)*it;
+			Connection* ex = (Connection*)*it;
 			cout << "\nDirection (" << ex->GetNameFrom(this) << ") you see " << ex->GetDestinationFrom(this)->name;
 		}
 	}
@@ -59,13 +59,13 @@ void Room::Look() const
 }
 
 // ----------------------------------------------------
-Exit* Room::GetExit(const string& direction) const
+Connection* Room::GetConnection(const string& direction) const
 {
 	for(list<Entity*>::const_iterator it = container.begin(); it != container.cend(); ++it)
 	{
 		if((*it)->type == EXIT)
 		{
-			Exit* ex = (Exit*) *it;
+			Connection* ex = (Connection*) *it;
 			if(Same(ex->GetNameFrom(this), direction))
 				return ex;
 		}

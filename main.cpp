@@ -3,7 +3,7 @@
 #include <vector>
 #include <conio.h>
 #include "globals.h"
-#include "world.h"
+#include "game.h"
 
 using namespace std;
 
@@ -23,7 +23,7 @@ int main()
 	cout << WHITE_ "Welcome to MyZork!\n" _WHITE;
 	cout << "----------------\n";
 
-	World my_world;
+	Game my_world;
 
 	args.push_back("look");
 

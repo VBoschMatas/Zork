@@ -1,7 +1,7 @@
 #include <iostream>
 #include "globals.h"
 #include "room.h"
-#include "exit.h"
+#include "connection.h"
 #include "item.h"
 #include "player.h"
 
@@ -24,7 +24,7 @@ void Player::Look(const vector<string>& args) const
 	{
 		for(list<Entity*>::const_iterator it = parent->container.begin(); it != parent->container.cend(); ++it)
 		{
-			if(Same((*it)->name, args[1]) || ((*it)->type == EXIT && Same(args[1], ((Exit*)(*it))->GetNameFrom((Room*)parent))))
+			if(Same((*it)->name, args[1]) || ((*it)->type == EXIT && Same(args[1], ((Connection*)(*it))->GetNameFrom((Room*)parent))))
 			{
 				(*it)->Look();
 				return;
@@ -46,7 +46,7 @@ void Player::Look(const vector<string>& args) const
 // ----------------------------------------------------
 bool Player::Go(const vector<string>& args)
 {
-	Exit* exit = GetRoom()->GetExit(args[1]);
+	Connection* exit = GetRoom()->GetConnection(args[1]);
 
 	if(exit == NULL)
 	{
@@ -326,7 +326,7 @@ bool Player::Lock(const vector<string>& args)
 	if(!IsAlive())
 		return false;
 
-	Exit* exit = GetRoom()->GetExit(args[1]);
+	Connection* exit = GetRoom()->GetConnection(args[1]);
 
 	if(exit == NULL)
 	{
@@ -367,7 +367,7 @@ bool Player::UnLock(const vector<string>& args)
 	if(!IsAlive())
 		return false;
 
-	Exit* exit = GetRoom()->GetExit(args[1]);
+	Connection* exit = GetRoom()->GetConnection(args[1]);
 
 	if(exit == NULL)
 	{
@@ -408,7 +408,7 @@ bool Player::Break(const vector<string>& args)
 	if (!IsAlive())
 		return false;
 
-	Exit* exit = GetRoom()->GetExit(args[1]);
+	Connection* exit = GetRoom()->GetConnection(args[1]);
 
 	if (exit == NULL)
 	{
@@ -433,5 +433,36 @@ bool Player::Break(const vector<string>& args)
 
 	exit->blocked = false;
 
+	return true;
+}
+
+bool Player::Talk(const vector<string>& args)
+{
+	string name;
+	Creature *target;
+
+	if (args.size() == 2) {
+		target = (Creature*)parent->Find(args[1], CREATURE);
+		name = args[1];
+	}
+	else if (args.size() == 3) {
+		target = (Creature*)parent->Find(args[2], CREATURE);
+		name = args[2];
+	}
+
+	if (target == NULL)
+	{
+		cout << "\n" << name << " is not here.\n";
+		return false;
+	}
+
+	if (target->quest == NULL)
+	{
+		cout << "\nYou can't talk to " << target->name;
+		return false;
+	}
+
+	//combat_target = target;
+	cout << "\n" << "!\n";
 	return true;
 }

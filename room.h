@@ -5,7 +5,7 @@
 #include <list>
 #include "entity.h"
 
-class Exit;
+class Connection;
 class Item;
 
 using namespace std;
@@ -18,7 +18,7 @@ public:
 
 	void Look() const;
 
-	Exit* GetExit(const string& direction) const;
+	Connection* GetConnection(const string& direction) const;
 
 public :
 };

@@ -3,21 +3,23 @@
 #include "entity.h"
 #include "creature.h"
 #include "item.h"
-#include "exit.h"
+#include "connection.h"
 #include "room.h"
 #include "player.h"
-#include "world.h"
+#include "game.h"
+#include "quest.h"
 
-// ----------------------------------------------------
-World::World()
+/**
+	We create all the entities that will be in the game and push them into the entities list
+**/
+Game::Game()
 {
 	tick_timer = clock();
 
-	// Rooms ----
-	Room* forest = new Room("Forest", "You are surrounded by tall trees. It feels like a huge forest someone could get lost easily.");
-	Room* house = new Room("House", "You are inside a beautiful but small white house.");
+	// Rooms
+	Room* house = new Room("House", "You are inside a little house with a basement");
 	Room* basement = new Room("Basement", "The basement features old furniture and dim light.");
-		// New rooms
+	Room* forest1 = new Room("Forest", "You are surrounded by tall trees. It feels like a huge forest someone could get lost easily.");
 	Room* forest2 = new Room("Deep forest", "Your are deep inside the forest");
 	Room* backyard = new Room("Backyard", "You are at the backyard. There is an old well, you might get down using something.");
 	Room* park = new Room("Park", "A runned down park filled with unfriendly inhabitants.");
@@ -27,27 +29,26 @@ World::World()
 	Room* cave3 = new Room("Cave III", "You can hear some starnge noises ahead.");
 	Room* cave4 = new Room("Cave IV", "You are in an open area inside the cave.");
 
+	// Connections
+	Connection* cn1 = new Connection("west", "east", "Little path", house, forest1);
+	Connection* cn2 = new Connection("down", "up", "Stairs", house, basement);
+	Connection* cn3 = new Connection("north", "south", "Overgown path", forest1, forest2);
+	Connection* cn4 = new Connection("east", "west", "Back door", house, backyard);
+	Connection* cn5 = new Connection("north", "south", "Paved road", backyard, park);
+	Connection* cn6 = new Connection("east", "west", "Dirt path", forest2, shed);
+	Connection* cn7 = new Connection("east", "west", "Dirt path", shed, park);
+	Connection* cn8 = new Connection("up", "down", "Well", cave1, backyard);
+	Connection* cn9 = new Connection("east", "west", "Underground corridor", cave1, cave2);
+	Connection* cn10 = new Connection("south", "north", "Undergound corridor", cave2, cave3);
+	Connection* cn11 = new Connection("west", "east", "Wide corridor", cave3, cave4);
+	Connection* cn12 = new Connection("down", "up", "Steep slope", cave4, cave1, true);
 
-	Exit* ex1 = new Exit("west", "east", "Little path", house, forest);
-	Exit* ex2 = new Exit("down", "up", "Stairs", house, basement);
-		//New exits
-	Exit* ex3 = new Exit("up", "down", "Overgown path", forest, forest2);
-	Exit* ex4 = new Exit("west", "east", "Back door", house, backyard);
-	Exit* ex5 = new Exit("up", "down", "Paved road", backyard, park);
-	Exit* ex6 = new Exit("east", "west", "Dirt path", forest2, shed);
-	Exit* ex7 = new Exit("east", "west", "Dirt path", shed, park);
-	Exit* ex8 = new Exit("up", "down", "Well", cave1, backyard);
-	Exit* ex9 = new Exit("east", "west", "Underground corridor", cave1, cave2);
-	Exit* ex10 = new Exit("down", "up", "Undergound corridor", cave2, cave3);
-	Exit* ex11 = new Exit("west", "east", "Wide corridor", cave3, cave4);
-	Exit* ex12 = new Exit("up", "down", "Steep slope", cave4, cave1, true);
+	cn2->locked = true;
+	cn8->locked = true;
+	cn3->blocked = true;
+	cn3->resistance = 1;
 
-	ex2->locked = true;
-	ex8->locked = true;
-	ex3->blocked = true;
-	ex3->resistance = 1;
-
-	entities.push_back(forest);
+	entities.push_back(forest1);
 	entities.push_back(house);
 	entities.push_back(basement);
 	entities.push_back(forest2);
@@ -59,83 +60,125 @@ World::World()
 	entities.push_back(cave3);
 	entities.push_back(cave4);
 
-	entities.push_back(ex1);
-	entities.push_back(ex2);
-	entities.push_back(ex3);
-	entities.push_back(ex4);
-	entities.push_back(ex5);
-	entities.push_back(ex6);
-	entities.push_back(ex7);
-	entities.push_back(ex8);
-	entities.push_back(ex9);
-	entities.push_back(ex10);
-	entities.push_back(ex11);
-	entities.push_back(ex12);
+	entities.push_back(cn1);
+	entities.push_back(cn2);
+	entities.push_back(cn3);
+	entities.push_back(cn4);
+	entities.push_back(cn5);
+	entities.push_back(cn6);
+	entities.push_back(cn7);
+	entities.push_back(cn8);
+	entities.push_back(cn9);
+	entities.push_back(cn10);
+	entities.push_back(cn11);
+	entities.push_back(cn12);
 
-	// Creatures ----
+	// Creatures
 	Creature* butler = new Creature("Butler", "It's James, the house Butler.", house);
 	butler->hit_points = 10;
-		//New creatures
-	Creature* dispatcher = new Creature("Dispatcher", "The one that commissioned you.", forest);
+
+	Creature* dispatcher = new Creature("Dispatcher", "The one that commissioned you.", forest1);
 	dispatcher->hit_points = 100;
 	dispatcher->min_damage = 100;
 	dispatcher->max_damage = 100;
 	dispatcher->min_protection = 100;
 	dispatcher->max_protection = 100;
+
 	Creature* rat1 = new Creature("Rat", "A small rat", backyard);
 	rat1->hit_points = 5;
 	Creature* rat2 = new Creature("Rat", "A small rat", forest2);
 	rat2->hit_points = 5;
 	Creature* rat3 = new Creature("Rat", "A small rat", cave2);
 	rat3->hit_points = 5;
-	Creature* troll = new Creature("Troll", "A big and fearsome troll. It's holding something.", cave4);
+
+	Creature* troll = new Creature("Troll", "A big and fearsome troll.", cave4);
 	troll->hit_points = 50;
 	troll->min_protection = 0;
 	troll->max_protection = 3;
+	troll->min_damage = 5;
+	troll->max_damage = 8;
+
 	Creature* goblin = new Creature("Goblin", "A small goblin that left the pack.", park);
 	goblin->hit_points = 10;
 	goblin->min_damage = 1;
 	goblin->max_damage = 3;
 
+	entities.push_back(rat1);
+	entities.push_back(rat2);
+	entities.push_back(rat3);
 	entities.push_back(butler);
 	entities.push_back(troll);
 	entities.push_back(goblin);
 
-	// Items -----
+	// Items
 	Item* mailbox = new Item("Mailbox", "Looks like it might contain something.", house);
 	Item* key = new Item("Key", "Old iron key.", mailbox);
-	ex2->key = key;
+	cn2->key = key; // we set 'key' as the key for connection 2: stairs
 
-	Item* sword = new Item("Sword", "A simple old and rusty sword.", forest, WEAPON);
+	Item* sword = new Item("Sword", "A small rusty sword.", basement, WEAPON);
 	sword->min_value = 2;
 	sword->max_value = 6;
 
-	Item* sword2(sword);
-	sword2->parent = butler;
+	Item* axe = new Item("Axe", "A big wood-cutting axe.", shed, WEAPON);
+	axe->min_value = 6;
+	axe->max_value = 8;
 
-	Item* shield = new Item("Shield", "An old wooden shield.", butler, ARMOUR);
-	shield->min_value = 1;
-	shield->max_value = 3;
-	butler->AutoEquip();
+	Item* rapier = new Item("Rapier", "A well conserved rapier. Very powerful on the right hands.", shed, WEAPON);
+	rapier->min_value = 3;
+	rapier->max_value = 13;
+
+	Item* buckler = new Item("Buckler", "A small wooden buckler.", butler, ARMOUR);
+	buckler->min_value = 1;
+	buckler->max_value = 3;
+
+	Item* shield = new Item("Shield", "A resistant shield.", goblin, ARMOUR);
+	shield->min_value = 3;
+	shield->max_value = 5;
+	goblin->AutoEquip();
 		
-		//New items
 	Item* bag = new Item("Bag", "An old and scratched bag.", forest2);
-	Item* rope = new Item("Rope", "A sturdy rope", bag);
-	Item* vines = new Item("Vines", "Overgown vines that block the path.", ex3);
-	ex8->key = rope;
+	Item* rope = new Item("Rope", "A sturdy long rope", bag);
+
+	Item* vines = new Item("Vines", "Overgrown vines that block the path.", cn3);
+	cn8->key = rope;
+
+	Item* head = new Item("Head", "Troll's head. Bring it back to the dispatcher.", troll);
+	Item* meat1 = new Item("Meat", "Some raw meat. Restores 5hp", rat1);
+	Item* meat2 = new Item("Meat", "Some raw meat. Restores 5hp", rat2);
+	Item* meat3 = new Item("Meat", "Some raw meat. Restores 5hp", rat3);
 
 	entities.push_back(mailbox);
 	entities.push_back(sword);
+	entities.push_back(axe);
+	entities.push_back(rapier);
+	entities.push_back(buckler);
 	entities.push_back(shield);
+	entities.push_back(bag);
+	entities.push_back(head);
+	entities.push_back(meat1);
+	entities.push_back(meat2);
+	entities.push_back(meat3);
 
-	// Player ----
-	player = new Player("Hero", "You are an awesome adventurer!", forest);
+	// Quests
+	Quest* main = new Quest("Main quest", "Hunt down the troll and bring his head back.", dispatcher, true);
+	main->conversation = "Hello adventurer.\nWhat are you waiting for? Hunt down that troll and bring his head back to me.";
+	main->completion = "Good job, as trust worthy as always.\nTime to head back to the HQ.";
+	main->objective = "Head";
+
+	Quest* secondary = new Quest("Something to cook", "Bring to the butler some meat.", butler, false);
+	secondary->conversation = "Good day sir.\nI would love to get some meat to cook, but I'm too bussy now. May you bring me some of it.\nYou will be rewarded.";
+	secondary->completion = "I hope this buckler comes in handy for your adventures!";
+	secondary->objective = "Meat";
+	secondary->reward = buckler;
+	
+	// Player
+	player = new Player("Adventurer", "You are an awesome adventurer!", forest1);
 	player->hit_points = 25;
 	entities.push_back(player);
 }
 
-// ----------------------------------------------------
-World::~World()
+// Clears out the entities list when the game starts
+Game::~Game()
 {
 	for(list<Entity*>::iterator it = entities.begin(); it != entities.end(); ++it)
 		delete *it;
@@ -143,8 +186,8 @@ World::~World()
 	entities.clear();
 }
 
-// ----------------------------------------------------
-bool World::Tick(vector<string>& args)
+//Every game tick
+bool Game::Tick(vector<string>& args)
 {
 	bool ret = true;
 
@@ -156,12 +199,12 @@ bool World::Tick(vector<string>& args)
 	return ret;
 }
 
-// ----------------------------------------------------
-void World::GameLoop()
+
+void Game::GameLoop()
 {
 	clock_t now = clock();
 
-	if((now - tick_timer) / CLOCKS_PER_SEC > TICK_FREQUENCY)
+	if((now - tick_timer) / CLOCKS_PER_SEC > TICK_FREQUENCY) //Enters one time per second
 	{
 		for(list<Entity*>::iterator it = entities.begin(); it != entities.end(); ++it)
 			(*it)->Tick();
@@ -170,14 +213,16 @@ void World::GameLoop()
 	}
 }
 
-// ----------------------------------------------------
-bool World::ParseCommand(vector<string>& args)
+/*
+	Commands introduced by the player will be processed here
+*/
+bool Game::ParseCommand(vector<string>& args)
 {
 	bool ret = true;
 
 	switch(args.size())
 	{
-		case 1: // commands with no arguments ------------------------------
+		case 1: // commands with no arguments
 		{
 			if(Same(args[0], "look") || Same(args[0], "l"))
 			{
@@ -225,7 +270,7 @@ bool World::ParseCommand(vector<string>& args)
 				ret = false;
 			break;
 		}
-		case 2: // commands with one argument ------------------------------
+		case 2: // commands with one argument
 		{
 			if(Same(args[0], "look") || Same(args[0], "l"))
 			{
@@ -267,15 +312,25 @@ bool World::ParseCommand(vector<string>& args)
 			{
 				player->Break(args);
 			}
+			else if (Same(args[0], "talk") || Same(args[0], "tl") || Same(args[0], "quest") || Same(args[0], "qst"))
+			{
+				player->Talk(args);
+			}
 			else
 				ret = false;
 			break;
 		}
-		case 3: // commands with two arguments ------------------------------
+		case 3: // commands with two arguments
 		{
+			if (Same(args[0], "talk") || Same(args[0], "tl") || Same(args[0], "quest") || Same(args[0], "qst"))
+			{
+				player->Talk(args);
+			}
+			else
+				ret = false;
 			break;
 		}
-		case 4: // commands with three arguments ------------------------------
+		case 4: // commands with three arguments
 		{
 			if(Same(args[0], "unlock") || Same(args[0], "unlk"))
 			{

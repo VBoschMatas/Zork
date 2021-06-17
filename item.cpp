@@ -1,6 +1,6 @@
 #include <iostream>
 #include "room.h"
-#include "exit.h"
+#include "connection.h"
 #include "globals.h"
 #include "item.h"
 

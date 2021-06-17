@@ -10,9 +10,6 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="world.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="room.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -20,9 +17,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="creature.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="exit.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="item.cpp">
@@ -34,21 +28,21 @@
     <ClCompile Include="globals.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="game.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="quest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="connection.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="world.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="room.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="entity.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="creature.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="exit.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="item.h">
@@ -58,6 +52,18 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="player.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="game.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="quest.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="entity.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="connection.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

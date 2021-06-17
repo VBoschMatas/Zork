@@ -1,5 +1,5 @@
-#ifndef __Exit__
-#define __Exit__
+#ifndef __Connection__
+#define __Connection__
 
 #include <string>
 #include "entity.h"
@@ -8,11 +8,11 @@ class Room;
 
 using namespace std;
 
-class Exit : public Entity
+class Connection : public Entity
 {
 public:
-	Exit(const char* name, const char* opposite_name, const char* description, Room* origin, Room* destination, bool one_way = false);
-	~Exit();
+	Connection(const char* name, const char* opposite_name, const char* description, Room* origin, Room* destination, bool one_way = false);
+	~Connection();
 
 	void Look() const;
 
@@ -30,4 +30,4 @@ public :
 	Entity* key;
 };
 
-#endif //__Exit__
+#endif //__Connection__

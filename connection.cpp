@@ -1,9 +1,8 @@
 #include <iostream>
 #include "room.h"
-#include "Exit.h"
+#include "connection.h"
 
-// ----------------------------------------------------
-Exit::Exit(const char* name, const char* opposite_name, const char* description, Room* origin, Room* destination, bool one_way) :
+Connection::Connection(const char* name, const char* opposite_name, const char* description, Room* origin, Room* destination, bool one_way) :
 Entity(name, description, (Entity*)origin),
 closed(false), locked(false), key(NULL), blocked(false), resistance(0), one_way(one_way), destination(destination), opposite_name(opposite_name)
 {
@@ -13,32 +12,31 @@ closed(false), locked(false), key(NULL), blocked(false), resistance(0), one_way(
 		destination->container.push_back(this);
 }
 
-// ----------------------------------------------------
-Exit::~Exit()
+Connection::~Connection()
 {
 }
 
 
-// ----------------------------------------------------
-void Exit::Look() const
+// We check what the connection connects
+void Connection::Look() const
 {
 	cout << name << " to " << opposite_name << "\n";
 	cout << description << "\n";
 }
 
-// ----------------------------------------------------
-const string& Exit::GetNameFrom(const Room* room) const
+// Get the name of the path when lookign at it from a room
+const string& Connection::GetNameFrom(const Room* room) const
 {
 	if(room == parent)
 		return name;
 	if(room == destination)
 		return opposite_name;
 
-	return name; // error ?
+	return "";
 }
 
 // ----------------------------------------------------
-Room* Exit::GetDestinationFrom(const Room* room) const
+Room* Connection::GetDestinationFrom(const Room* room) const
 {
 	if(room == parent)
 		return destination;

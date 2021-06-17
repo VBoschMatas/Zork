@@ -1,7 +1,7 @@
 #include <iostream>
 #include "globals.h"
 #include "room.h"
-#include "exit.h"
+#include "connection.h"
 #include "item.h"
 #include "creature.h"
 
@@ -41,7 +41,7 @@ bool Creature::Go(const vector<string>& args)
 	if(!IsAlive())
 		return false;
 
-	Exit* exit = GetRoom()->GetExit(args[1]);
+	Connection* exit = GetRoom()->GetConnection(args[1]);
 
 	if(exit == NULL)
 		return false;
@@ -201,7 +201,7 @@ bool Creature::Lock(const vector<string>& args)
 	if(!IsAlive())
 		return false;
 
-	Exit* exit = GetRoom()->GetExit(args[1]);
+	Connection* exit = GetRoom()->GetConnection(args[1]);
 
 	if(exit == NULL || exit->locked == true)
 		return false;
@@ -225,7 +225,7 @@ bool Creature::UnLock(const vector<string>& args)
 	if(!IsAlive())
 		return false;
 
-	Exit* exit = GetRoom()->GetExit(args[1]);
+	Connection* exit = GetRoom()->GetConnection(args[1]);
 
 	if(exit == NULL || exit->locked == false)
 		return false;

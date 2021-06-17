@@ -6,6 +6,7 @@
 
 class Room;
 class Item;
+class Quest;
 
 using namespace std;
 
@@ -48,6 +49,7 @@ public :
 	Creature* combat_target;
 	Item* weapon;
 	Item* armour;
+	Quest* quest;
 };
 
 #endif //__Creature__
