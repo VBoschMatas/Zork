@@ -5,19 +5,19 @@
 #include "item.h"
 #include "player.h"
 
-// ----------------------------------------------------
 Player::Player(const char* title, const char* description, Room* room) :
 Creature(title, description, room)
 {
 	type = PLAYER;
 }
 
-// ----------------------------------------------------
 Player::~Player()
 {
 }
 
-// ----------------------------------------------------
+/*
+	Look around or an especified entity
+*/
 void Player::Look(const vector<string>& args) const
 {
 	if(args.size() > 1)
@@ -43,7 +43,9 @@ void Player::Look(const vector<string>& args) const
 	}
 }
 
-// ----------------------------------------------------
+/*
+	Go towards the direction specified, if possible, if not, notify it
+*/
 bool Player::Go(const vector<string>& args)
 {
 	Connection* exit = GetRoom()->GetConnection(args[1]);
@@ -74,14 +76,15 @@ bool Player::Go(const vector<string>& args)
 }
 
 
-// ----------------------------------------------------
+/*
+	Take an item from a room or a container
+*/
 bool Player::Take(const vector<string>& args)
 {
 	if(args.size() == 4)
 	{
 		Item* item = (Item*)parent->Find(args[3], ITEM);
 
-		// we could pick something from a container in our inventory ...
 		if(item == NULL)
 			item = (Item*)Find(args[3], ITEM);
 
@@ -119,7 +122,9 @@ bool Player::Take(const vector<string>& args)
 	return false;
 }
 
-// ----------------------------------------------------
+/*
+	Check the inventory
+*/
 void Player::Inventory() const
 {
 	list<Entity*> items;
@@ -144,7 +149,9 @@ void Player::Inventory() const
 	cout << "\n";
 }
 
-// ----------------------------------------------------
+/*
+	Drop an item on the ground or at a container
+*/
 bool Player::Drop(const vector<string>& args)
 {
 	if(args.size() == 2)
@@ -190,7 +197,9 @@ bool Player::Drop(const vector<string>& args)
 	return false;
 }
 
-// ----------------------------------------------------
+/*
+	Equip a weapon or armor form your inventory
+*/
 bool Player::Equip(const vector<string>& args)
 {
 	Item* item = (Item*)Find(args[1], ITEM);
@@ -221,7 +230,9 @@ bool Player::Equip(const vector<string>& args)
 	return true;
 }
 
-// ----------------------------------------------------
+/*
+	Unequip something
+*/
 bool Player::UnEquip(const vector<string>& args)
 {
 	if(!IsAlive())
@@ -250,7 +261,9 @@ bool Player::UnEquip(const vector<string>& args)
 	return true;
 }
 
-// ----------------------------------------------------
+/*
+	Examine creatures
+*/
 bool Player::Examine(const vector<string>& args) const
 {
 	Creature *target = (Creature*)parent->Find(args[1], CREATURE);
@@ -267,7 +280,9 @@ bool Player::Examine(const vector<string>& args) const
 	return true;
 }
 
-// ----------------------------------------------------
+/*
+	Attack at target creature
+*/
 bool Player::Attack(const vector<string>& args)
 {
 	Creature *target = (Creature*)parent->Find(args[1], CREATURE);
@@ -283,7 +298,9 @@ bool Player::Attack(const vector<string>& args)
 	return true;
 }
 
-// ----------------------------------------------------
+/*
+	Loot dead creature
+*/
 bool Player::Loot(const vector<string>& args)
 {
 	Creature *target = (Creature*)parent->Find(args[1], CREATURE);
@@ -320,7 +337,9 @@ bool Player::Loot(const vector<string>& args)
 	return true;
 }
 
-// ----------------------------------------------------
+/*
+	Lock a connection
+*/
 bool Player::Lock(const vector<string>& args)
 {
 	if(!IsAlive())
@@ -361,7 +380,9 @@ bool Player::Lock(const vector<string>& args)
 	return true;
 }
 
-// ----------------------------------------------------
+/*
+	Unlock a connection
+*/
 bool Player::UnLock(const vector<string>& args)
 {
 	if(!IsAlive())
@@ -436,7 +457,10 @@ bool Player::Break(const vector<string>& args)
 	return true;
 }
 
-bool Player::Talk(const vector<string>& args)
+/*
+	Talk to a creature if it has a quest
+*/
+void Player::Talk(const vector<string>& args)
 {
 	string name;
 	Creature *target;
@@ -453,16 +477,95 @@ bool Player::Talk(const vector<string>& args)
 	if (target == NULL)
 	{
 		cout << "\n" << name << " is not here.\n";
-		return false;
+		return;
 	}
 
 	if (target->quest == NULL)
 	{
-		cout << "\nYou can't talk to " << target->name;
+		cout << "\nYou can't talk to " << target->name << "\n";
+		return;
+	}
+	target->QuestStatus();
+
+	return;
+}
+
+/*
+	Give a creature an item if it has a quest
+*/
+bool Player::Give(const vector<string>& args)
+{
+	if (!IsAlive())
+		return false;
+
+	Creature *target = (Creature*)parent->Find(args[3], CREATURE);
+
+	if (target == NULL) {
+		cout << "\n" << args[3] << " is not here.\n";
+		return false;
+	}
+	if (target->quest == NULL)
+	{
+		cout << "\nYou can't give items to " << target->name << "\n";
 		return false;
 	}
 
-	//combat_target = target;
-	cout << "\n" << "!\n";
+	Item* item = (Item*)Find(args[1], ITEM);
+
+	if (item == NULL)
+	{
+		cout << "\nThere is no item on you with that name.\n";
+		return false;
+	}
+
+	Item* reward = target->CompleteQuest(item);
+
+	if (reward == NULL) {
+		return false;
+	}
+
+	reward->ChangeParentTo(this);
+	cout << "You received " << reward->name << "!\n";
+
 	return true;
+}
+
+void Player::Use(const vector<string>& args)
+{
+	Item* item = (Item*)Find(args[1], ITEM);
+
+	if (item == NULL)
+	{
+		cout << "\n'" << args[1] << "' is not in your inventory.\n";
+		return;
+	}
+
+	switch (item->item_type)
+	{
+	case CONSUMABLE:
+		if (hit_points == max_hp) {
+			cout << "\nAlready at max health.\n";
+			return;
+		}
+		else {
+			cout << "\n" << item->name << " consumed.";
+			int restored = Roll(item->min_value, item->max_value);
+			if (hit_points + restored > max_hp) {
+				cout << "\nFully healed!\n";
+				hit_points = max_hp;
+			}
+			else {
+				this->hit_points += restored;
+				cout << "\nHealed " << restored << "hp!\n";
+			}
+			item = NULL;
+		}
+		break;
+
+	default:
+		cout << "\nThe item " << item->name << " cannot be used.\n";
+		return ;
+	}
+
+	return;
 }

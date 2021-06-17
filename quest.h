@@ -19,5 +19,6 @@ public:
 	const char* conversation;
 	const char* completion;
 	bool is_completed;
+	bool is_main;
 };
 #endif

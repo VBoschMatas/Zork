@@ -4,23 +4,27 @@
 #include "connection.h"
 #include "item.h"
 #include "creature.h"
+#include "quest.h"
+#include "game.h"
 
-// ----------------------------------------------------
 Creature::Creature(const char* title, const char* description, Room* room) :
 Entity(title, description, (Entity*)room)
 {
 	type = CREATURE;
 	hit_points = 1;
+	max_hp = 1;
 	min_damage = max_damage = min_protection = max_protection = 0;
 	weapon = armour = NULL;
 	combat_target = NULL;
+	quest = NULL;
 }
 
-// ----------------------------------------------------
 Creature::~Creature()
 {}
 
-// ----------------------------------------------------
+/*
+	Check the information about a creature
+*/
 void Creature::Look(const vector<string>& args) const
 {
 	if(IsAlive())
@@ -35,65 +39,10 @@ void Creature::Look(const vector<string>& args) const
 	}
 }
 
-// ----------------------------------------------------
-bool Creature::Go(const vector<string>& args)
-{
-	if(!IsAlive())
-		return false;
 
-	Connection* exit = GetRoom()->GetConnection(args[1]);
-
-	if(exit == NULL)
-		return false;
-
-	if(PlayerInRoom())
-		cout << name << "goes " << args[1] << "...\n";
-
-	ChangeParentTo(exit->GetDestinationFrom((Room*) parent));
-
-	return true;
-}
-
-// ----------------------------------------------------
-bool Creature::Take(const vector<string>& args)
-{
-	if(!IsAlive())
-		return false;
-
-	Item* item = (Item*)parent->Find(args[1], ITEM);
-
-	if(args.size() > 1)
-	{
-		// we could pick something from a container in our inventory ...
-		if(item == NULL)
-			item = (Item*)Find(args[1], ITEM);
-
-		if(item == NULL)
-			return false;
-
-		Item* subitem = (Item*)item->Find(args[3], ITEM);
-
-		if(subitem == NULL)
-			return false;
-
-		if(PlayerInRoom())
-			cout << name << " looks into " << item->name << "...\n";
-
-		item = subitem;
-	}
-
-	if(item == NULL)
-		return false;
-
-	if(PlayerInRoom())
-		cout << name << " takes " << item->name << ".\n";
-
-	item->ChangeParentTo(this);
-
-	return true;
-}
-
-// ----------------------------------------------------
+/*
+	Check the inventory of a creature
+*/
 void Creature::Inventory() const
 {
 	list<Entity*> items;
@@ -101,11 +50,11 @@ void Creature::Inventory() const
 
 	if(items.size() == 0)
 	{
-		cout << name << " does not own any items\n";
+		cout << name << " does not hold any items\n";
 		return;
 	}
 
-	cout << "\n" << name << " owns:\n";
+	cout << "\n" << name << " has:\n";
 	for(list<Entity*>::const_iterator it = items.begin(); it != items.cend(); ++it)
 	{
 		if(*it == weapon)
@@ -117,63 +66,10 @@ void Creature::Inventory() const
 	}
 }
 
-// ----------------------------------------------------
-bool Creature::Equip(const vector<string>& args)
-{
-	if(!IsAlive())
-		return false;
 
-	Item* item = (Item*)Find(args[1], ITEM);
-
-	if(item == NULL)
-		return false;
-
-	switch(item->type)
-	{
-		case WEAPON:
-		weapon = item;
-		break;
-
-		case ARMOUR:
-		armour = item;
-		break;
-
-		default:
-		return false;
-	}
-
-	if(PlayerInRoom())
-		cout << name << " equips " << item->name << "...\n";
-
-	return true;
-}
-
-// ----------------------------------------------------
-bool Creature::UnEquip(const vector<string>& args)
-{
-	if(!IsAlive())
-		return false;
-
-	Item* item = (Item*)Find(args[1], ITEM);
-
-	if(item == NULL)
-		return false;
-
-	if(item == weapon)
-		weapon = NULL;
-	else if(item == weapon)
-		armour = NULL;
-	else
-		return false;
-
-	if(PlayerInRoom())
-		cout << name << " un-equips " << item->name << "...\n";
-
-	return true;
-}
-
-
-// ----------------------------------------------------
+/*
+	Equips automatically all equipment form inventory
+*/
 bool Creature::AutoEquip()
 {
 	if(!IsAlive())
@@ -195,92 +91,34 @@ bool Creature::AutoEquip()
 	return true;
 }
 
-// ----------------------------------------------------
-bool Creature::Lock(const vector<string>& args)
-{
-	if(!IsAlive())
-		return false;
 
-	Connection* exit = GetRoom()->GetConnection(args[1]);
-
-	if(exit == NULL || exit->locked == true)
-		return false;
-
-	Item* item = (Item*)Find(args[3], ITEM);
-
-	if(item == NULL || exit->key != item)
-		return false;
-
-	if(PlayerInRoom())
-		cout << "\n" << name << "locks " << exit->GetNameFrom((Room*)parent) << "...\n";
-
-	exit->locked = true;
-
-	return true;
-}
-
-// ----------------------------------------------------
-bool Creature::UnLock(const vector<string>& args)
-{
-	if(!IsAlive())
-		return false;
-
-	Connection* exit = GetRoom()->GetConnection(args[1]);
-
-	if(exit == NULL || exit->locked == false)
-		return false;
-
-	Item* item = (Item*)Find(args[3], ITEM);
-
-	if(item == NULL || exit->key != item)
-		return false;
-
-	if(PlayerInRoom())
-		cout << "\n" << name << "unlocks " << exit->GetNameFrom((Room*) parent) << "...\n";
-
-	exit->locked = false;
-
-	return true;
-}
-
-// ----------------------------------------------------
-bool Creature::Drop(const vector<string>& args)
-{
-	if(!IsAlive())
-		return false;
-
-	Item* item = (Item*)Find(args[1], ITEM);
-
-	if(item == NULL)
-		return false;
-
-	if(PlayerInRoom())
-		cout << name << " drops " << item->name << "...\n";
-	
-	item->ChangeParentTo(parent);
-
-	return true;
-}
-
-// ----------------------------------------------------
+/*
+	Take the information about the room the creature is
+*/
 Room* Creature::GetRoom() const
 {
 	return (Room*)parent;
 }
 
-// ----------------------------------------------------
+/*
+	Check if the player is in the same room
+*/
 bool Creature::PlayerInRoom() const
 {
 	return parent->Find(PLAYER) != NULL;
 }
 
-// ----------------------------------------------------
+/*
+	Check if the creature is still alive
+*/
 bool Creature::IsAlive() const
 {
 	return hit_points > 0;
 }
 
-// ----------------------------------------------------
+/*
+	Action performed every game tick
+*/
 void Creature::Tick()
 {
 	if(combat_target != NULL)
@@ -292,7 +130,9 @@ void Creature::Tick()
 	}
 }
 
-// ----------------------------------------------------
+/*
+	Attack at target
+*/
 bool Creature::Attack(const vector<string>& args)
 {
 	Creature *target = (Creature*)parent->Find(args[1], CREATURE);
@@ -305,7 +145,6 @@ bool Creature::Attack(const vector<string>& args)
 	return true;
 }
 
-// ----------------------------------------------------
 int Creature::MakeAttack()
 {
 	if(!IsAlive() || !combat_target->IsAlive())
@@ -328,12 +167,11 @@ int Creature::MakeAttack()
 	return result;
 }
 
-// ----------------------------------------------------
 int Creature::ReceiveAttack(int damage)
 {
 	int prot = (armour) ? armour->GetValue() : Roll(min_protection, max_protection);
 	int received = damage - prot;
-
+	if (received < 0) received = 0;
 	hit_points -= received;
 
 	if(PlayerInRoom())
@@ -345,36 +183,20 @@ int Creature::ReceiveAttack(int damage)
 	return received;
 }
 
-// ----------------------------------------------------
+/*
+	If creature has 0 hp, die. If it is player: Game Over
+*/
 void Creature::Die()
 {
 	if(PlayerInRoom())
 		cout << name << " dies.\n";
+	if (type == PLAYER)
+		Game::GameOver(false);
 }
 
-// ----------------------------------------------------
-bool Creature::Loot(const vector<string>& args)
-{
-	Creature *target = (Creature*)parent->Find(args[1], CREATURE);
-
-	if(target == NULL && target->IsAlive() == false)
-		return false;
-
-	list<Entity*> items;
-	target->FindAll(ITEM, items);
-
-	for(list<Entity*>::const_iterator it = items.begin(); it != items.cend(); ++it)
-	{
-		Item* i = (Item*)(*it);
-		i->ChangeParentTo(this);
-	}
-
-	cout << "\n" << name << " loots " << target->name << "'s corpse\n";
-
-	return true;
-}
-
-// ----------------------------------------------------
+/*
+	Check the stats about a creature
+*/
 void Creature::Stats() const
 {
 	cout << "\nHit Points: " << hit_points;
@@ -383,4 +205,43 @@ void Creature::Stats() const
 	cout << "\nProtection: (" << ((armour) ? armour->name : "no armour") << ") ";
 	cout << ((armour) ? armour->min_value : min_protection) << "-" << ((armour) ? armour->max_value : max_protection);
 	cout << "\n";
+}
+
+/*
+	Respond to the player depending on your quest status
+*/
+void Creature::QuestStatus() const
+{
+	if (quest->is_completed == true) {
+		cout << "\n" << name << ": \"" << quest->completion << "\"\n";
+		return;
+	}
+	else {
+		cout << "\n" << name << ": \"" << quest->conversation << "\"\n";
+		return;
+	}
+}
+
+/*
+	Check if the quest is completed, if it is and the item given is correct, return the reward
+*/
+Item* Creature::CompleteQuest(Item* item)
+{
+	if (quest->is_completed == true) {
+		cout << "\nAlready completed.\n";
+		return NULL;
+	}
+	if (quest->objective == item->name) {
+		item->ChangeParentTo(this);
+		quest->is_completed = true;
+		cout << "\nQUEST COMPLETE!\n";
+		cout << name << ": \"" << quest->completion << "\"\n";
+		if (quest->is_main == true) {
+			Game::GameOver(true);
+		}
+		return quest->reward;
+	}
+
+	cout << "\nThat's not the correct item\n";
+	return NULL;
 }

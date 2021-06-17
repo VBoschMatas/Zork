@@ -24,7 +24,9 @@ public:
 	bool Lock(const vector<string>& args);
 	bool UnLock(const vector<string>& args);
 	bool Break(const vector<string>& args);
-	bool Talk(const vector<string>& args);
+	void Talk(const vector<string>& args);
+	bool Give(const vector<string>& args);
+	void Use(const vector<string>& args);
 
 public :
 

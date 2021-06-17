@@ -34,13 +34,15 @@ public:
 	virtual void Die();
 	virtual bool Loot(const vector<string>& args);
 	virtual void Stats() const;
+	virtual void QuestStatus() const;
+	virtual Item* CompleteQuest(Item* item);
 
 	Room* GetRoom() const;
 	bool PlayerInRoom() const;
 	bool IsAlive() const;
 
 public :
-
+	int max_hp;
 	int hit_points;
 	int min_damage;
 	int max_damage;

@@ -37,7 +37,6 @@ int main()
 				if(player_input.length() > 0)
 				{
 					player_input.pop_back();
-					//cout << BACKSPACE;
 					cout << '\b';
 					cout << " ";
 					cout << '\b';
@@ -51,6 +50,9 @@ int main()
 			else
 				Tokenize(player_input, args);
 		}
+
+		if (Game::End() == true)
+			break;
 
 		if(args.size() > 0 && Same(args[0], "quit"))
 			break;

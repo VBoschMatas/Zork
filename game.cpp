@@ -32,7 +32,7 @@ Game::Game()
 	// Connections
 	Connection* cn1 = new Connection("west", "east", "Little path", house, forest1);
 	Connection* cn2 = new Connection("down", "up", "Stairs", house, basement);
-	Connection* cn3 = new Connection("north", "south", "Overgown path", forest1, forest2);
+	Connection* cn3 = new Connection("north", "south", "Overgrown path", forest1, forest2);
 	Connection* cn4 = new Connection("east", "west", "Back door", house, backyard);
 	Connection* cn5 = new Connection("north", "south", "Paved road", backyard, park);
 	Connection* cn6 = new Connection("east", "west", "Dirt path", forest2, shed);
@@ -40,13 +40,15 @@ Game::Game()
 	Connection* cn8 = new Connection("up", "down", "Well", cave1, backyard);
 	Connection* cn9 = new Connection("east", "west", "Underground corridor", cave1, cave2);
 	Connection* cn10 = new Connection("south", "north", "Undergound corridor", cave2, cave3);
-	Connection* cn11 = new Connection("west", "east", "Wide corridor", cave3, cave4);
+	Connection* cn11 = new Connection("east", "west", "Wide corridor", cave3, cave4);
 	Connection* cn12 = new Connection("down", "up", "Steep slope", cave4, cave1, true);
 
 	cn2->locked = true;
 	cn8->locked = true;
 	cn3->blocked = true;
 	cn3->resistance = 1;
+	cn6->blocked = true;
+	cn6->resistance = 5;
 
 	entities.push_back(forest1);
 	entities.push_back(house);
@@ -79,9 +81,9 @@ Game::Game()
 
 	Creature* dispatcher = new Creature("Dispatcher", "The one that commissioned you.", forest1);
 	dispatcher->hit_points = 100;
-	dispatcher->min_damage = 100;
+	dispatcher->min_damage = 99;
 	dispatcher->max_damage = 100;
-	dispatcher->min_protection = 100;
+	dispatcher->min_protection = 99;
 	dispatcher->max_protection = 100;
 
 	Creature* rat1 = new Creature("Rat", "A small rat", backyard);
@@ -106,6 +108,7 @@ Game::Game()
 	entities.push_back(rat1);
 	entities.push_back(rat2);
 	entities.push_back(rat3);
+	entities.push_back(dispatcher);
 	entities.push_back(butler);
 	entities.push_back(troll);
 	entities.push_back(goblin);
@@ -138,14 +141,17 @@ Game::Game()
 		
 	Item* bag = new Item("Bag", "An old and scratched bag.", forest2);
 	Item* rope = new Item("Rope", "A sturdy long rope", bag);
-
-	Item* vines = new Item("Vines", "Overgrown vines that block the path.", cn3);
 	cn8->key = rope;
+	Item* vines = new Item("vines", "Overgrown vines are blocking the path.", cn3);
+	Item* logs = new Item("logs", "Some trees fell down and are blocking the path.", cn6);
 
 	Item* head = new Item("Head", "Troll's head. Bring it back to the dispatcher.", troll);
-	Item* meat1 = new Item("Meat", "Some raw meat. Restores 5hp", rat1);
-	Item* meat2 = new Item("Meat", "Some raw meat. Restores 5hp", rat2);
-	Item* meat3 = new Item("Meat", "Some raw meat. Restores 5hp", rat3);
+	Item* meat1 = new Item("Meat", "Some raw meat. Restores some hp.", rat1, CONSUMABLE);
+	meat1->min_value = 4; meat1->max_value = 6;
+	Item* meat2 = new Item("Meat", "Some raw meat. Restores some hp.", rat2, CONSUMABLE);
+	meat2->min_value = 4; meat2->max_value = 6;
+	Item* meat3 = new Item("Meat", "Some raw meat. Restores some hp.", rat3, CONSUMABLE);
+	meat3->min_value = 4; meat3->max_value = 6;
 
 	entities.push_back(mailbox);
 	entities.push_back(sword);
@@ -164,16 +170,18 @@ Game::Game()
 	main->conversation = "Hello adventurer.\nWhat are you waiting for? Hunt down that troll and bring his head back to me.";
 	main->completion = "Good job, as trust worthy as always.\nTime to head back to the HQ.";
 	main->objective = "Head";
+	dispatcher->quest = main;
 
 	Quest* secondary = new Quest("Something to cook", "Bring to the butler some meat.", butler, false);
 	secondary->conversation = "Good day sir.\nI would love to get some meat to cook, but I'm too bussy now. May you bring me some of it.\nYou will be rewarded.";
 	secondary->completion = "I hope this buckler comes in handy for your adventures!";
 	secondary->objective = "Meat";
 	secondary->reward = buckler;
+	butler->quest = secondary;
 	
 	// Player
 	player = new Player("Adventurer", "You are an awesome adventurer!", forest1);
-	player->hit_points = 25;
+	player->hit_points = 25; player->max_hp = 25; //Max hp only is used when healing, so its only required by the player
 	entities.push_back(player);
 }
 
@@ -266,6 +274,10 @@ bool Game::ParseCommand(vector<string>& args)
 			{
 				player->Inventory();
 			}
+			else if (Same(args[0], "help") || Same(args[0], "h"))
+			{
+				Help();
+			}
 			else
 				ret = false;
 			break;
@@ -316,6 +328,10 @@ bool Game::ParseCommand(vector<string>& args)
 			{
 				player->Talk(args);
 			}
+			else if (Same(args[0], "use") || Same(args[0], "consume"))
+			{
+				player->Use(args);
+			}
 			else
 				ret = false;
 			break;
@@ -348,6 +364,10 @@ bool Game::ParseCommand(vector<string>& args)
 			{
 				player->Drop(args);
 			}
+			else if (Same(args[0], "give") || Same(args[0], "bring"))
+			{
+				player->Give(args);
+			}
 			else
 				ret = false;
 			break;
@@ -357,4 +377,65 @@ bool Game::ParseCommand(vector<string>& args)
 	}
 
 	return ret;
+}
+
+/*
+	Show the commands
+*/
+void Game::Help() {
+	cout << "\n-------------------------------";
+	cout << "\nHelp";
+	cout << "\n-------------------------------";
+	cout << "\nYour objective is to complete  ";
+	cout << "\nthe main quest delivered by    ";
+	cout << "\nthe dispatcher.                ";
+	cout << "\n                               ";
+	cout << "\n-------- Commands: ------------";
+	cout << "\n>look                          ";
+	cout << "\n>stats                         ";
+	cout << "\n>inventory                     ";
+	cout << "\n>look [entity]                 ";
+	cout << "\n>[direction]                   ";
+	cout << "\n>go [direction]                ";
+	cout << "\n>take [item]                   ";
+	cout << "\n>take [item] from [container]  ";
+	cout << "\n>drop [item]                   ";
+	cout << "\n>drop [item] at [container]    ";
+	cout << "\n>equip [item]                  ";
+	cout << "\n>unequip [item]                ";
+	cout << "\n>talk (to) [creature]          ";
+	cout << "\n>attack [creature]             ";
+	cout << "\n>loot [creature]               ";
+	cout << "\n>examine [creature]            ";
+	cout << "\n>break [direction]             ";
+	cout << "\n>unlock [direction] with [item]";
+	cout << "\n>lock [direction] with [item]  ";
+	cout << "\n>use [item]                \n\n";
+}
+
+/*
+	static function that will be executed if the game is over
+*/
+void Game::GameOver(const bool win)
+{
+	if (!win) {
+		cout << "\n ----------------------------------- \n";
+		cout << "\n           GAME       OVER           \n";
+		cout << "\n ----------------------------------- \n";
+		cout << "          better luck next time        \n";
+	}
+	else {
+		cout << "\n ----------------------------------- \n";
+		cout << "\n           CONGRATULATIONS           \n";
+		cout << "\n ----------------------------------- \n";
+	}
+	is_end = true;
+}
+
+/*
+	Static function that tell to main if the game is over
+*/
+bool Game::End() {
+	if (is_end) return true;
+	return false;
 }

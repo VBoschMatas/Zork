@@ -20,11 +20,17 @@ Connection::~Connection()
 // We check what the connection connects
 void Connection::Look() const
 {
-	cout << name << " to " << opposite_name << "\n";
+	cout << "\n" << name << " to " << opposite_name << "\n";
 	cout << description << "\n";
+	if (blocked == true) {
+		cout << Find(ITEM)->description << "\n";
+	}
+	if (locked == true) {
+		cout << "You might need something to continue.\n";
+	}
 }
 
-// Get the name of the path when lookign at it from a room
+// Get the name of the path when looking at it from a room
 const string& Connection::GetNameFrom(const Room* room) const
 {
 	if(room == parent)
@@ -32,10 +38,12 @@ const string& Connection::GetNameFrom(const Room* room) const
 	if(room == destination)
 		return opposite_name;
 
-	return "";
+	return name;
 }
 
-// ----------------------------------------------------
+/*
+	Get the destination when looking at it from a room
+*/
 Room* Connection::GetDestinationFrom(const Room* room) const
 {
 	if(room == parent)

@@ -1,6 +1,6 @@
 #include <iostream>
 #include "globals.h"
-#include "Entity.h"
+#include "entity.h"
 
 Entity::Entity(const char* name, const char* description, Entity* parent = NULL) :
 name(name), description(description), parent(parent)
@@ -29,7 +29,6 @@ void Entity::Tick()
 // Everytime an entity changes its location (inventory, room, etc) its new parent becomes the actual parent
 void Entity::ChangeParentTo(Entity* new_parent)
 {
-	cout << "HEY!";
 	if(parent != NULL)
 		parent->container.remove(this);
 

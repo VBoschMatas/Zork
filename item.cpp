@@ -4,7 +4,6 @@
 #include "globals.h"
 #include "item.h"
 
-// ----------------------------------------------------
 Item::Item(const char* title, const char* description, Entity* parent, ItemType item_type) :
 Entity(title, description, parent), item_type(item_type)
 {
@@ -12,11 +11,12 @@ Entity(title, description, parent), item_type(item_type)
 	min_value = max_value = 0;
 }
 
-// ----------------------------------------------------
 Item::~Item()
 {}
 
-// ----------------------------------------------------
+/*
+	Look the information about the item. If it has something inside show it
+*/
 void Item::Look() const
 {
 	cout << "\n" << name << "\n";
@@ -33,7 +33,9 @@ void Item::Look() const
 	}
 }
 
-// ----------------------------------------------------
+/*
+	Return a random value between max and min
+*/
 int Item::GetValue() const
 {
 	return Roll(min_value, max_value);

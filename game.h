@@ -13,6 +13,8 @@ class Entity;
 class Player;
 class Quest;
 
+static bool is_end = false;
+
 class Game
 {
 public :
@@ -23,6 +25,10 @@ public :
 	bool Tick(vector<string>& args);
 	bool ParseCommand(vector<string>& args);
 	void GameLoop();
+	void Help();
+
+	static void GameOver(const bool win);
+	static bool End();
 
 private:
 
@@ -31,4 +37,4 @@ private:
 	Player* player;
 };
 
-#endif //__World__
+#endif 

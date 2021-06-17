@@ -5,25 +5,25 @@
 #include "creature.h"
 #include "room.h"
 
-// ----------------------------------------------------
 Room::Room(const char* title, const char* description) :
 Entity(title, description, NULL)
 {
 	type = ROOM;
 }
 
-// ----------------------------------------------------
 Room::~Room()
 {
 }
 
-// ----------------------------------------------------
+/*
+	Look whats inside the room
+*/
 void Room::Look() const
 {
 	cout << "\n" << name << "\n";
 	cout << description;
 
-	// List exits --
+	// List connections
 	for(list<Entity*>::const_iterator it = container.begin(); it != container.cend(); ++it)
 	{
 		if((*it)->type == EXIT)
@@ -33,7 +33,7 @@ void Room::Look() const
 		}
 	}
 
-	// List items --
+	// List items
 	for(list<Entity*>::const_iterator it = container.begin(); it != container.cend(); ++it)
 	{
 		if((*it)->type == ITEM)
@@ -43,7 +43,7 @@ void Room::Look() const
 		}
 	}
 
-	// List creatures --
+	// List creatures
 	for(list<Entity*>::const_iterator it = container.begin(); it != container.cend(); ++it)
 	{
 		if((*it)->type == CREATURE)
@@ -58,7 +58,9 @@ void Room::Look() const
 	cout << "\n";
 }
 
-// ----------------------------------------------------
+/*
+	Return the connections it has
+*/
 Connection* Room::GetConnection(const string& direction) const
 {
 	for(list<Entity*>::const_iterator it = container.begin(); it != container.cend(); ++it)
