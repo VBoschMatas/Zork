@@ -11,7 +11,8 @@ This version of Zork has 11 rooms, various creatures and items, consumables, new
 ## How to play
 Through keyboard input type the actions the main character has to perform in order to navigate and complete the quests.
 List of commands:
->look\n
+>look
+>
 >stats
 >inventory
 >look [entity]
