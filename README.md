@@ -14,6 +14,8 @@ The quests consist about some simple messages  depending if they are completed o
 
 There are also consumable objects that can be used and will heal a certain amount of life. This items are lost once consumed.
 
+Note: On game over, let it be Win or Lose the game will close automatically. In order to check the "end game" screen it has to be executed from Visual Studio, as it is impossible for me to build the Release at time of detecting this. Sorry for the inconvenience.
+
 ## How to play
 Through keyboard input type the actions the main character has to perform in order to navigate and complete the quests.
 List of commands:
